@@ -45,8 +45,8 @@ Thumbs.db
 
 # Project specific
 csv/
+csv/
 *.pdf
-!examples/*.pdf
 
 # Logs
 *.log

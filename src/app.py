@@ -114,6 +114,47 @@ class Application:
             pdf_files: List of PDF files to process
             output_dir: Output directory for CSV files
         """
-        # TODO: Implement in Module 2
-        self.logger.warning("PDF processing not yet implemented (coming in Module 2)")
-        self.logger.success("Module 1 (CLI & File Handler) completed successfully")
+        from src.pdf_parser import PDFParser
+        from src.transaction_parser import TransactionParser
+        from src.csv_writer import CSVWriter
+        
+        pdf_parser = PDFParser(verbose=self.args.verbose)
+        transaction_parser = TransactionParser(verbose=self.args.verbose)
+        csv_writer = CSVWriter(verbose=self.args.verbose)
+        
+        success_count = 0
+        error_count = 0
+        
+        for pdf_file in pdf_files:
+            try:
+                self.logger.info(f"Processing: {pdf_file.name}")
+                
+                # Step 1: Extract text from PDF
+                self.logger.debug(f"Extracting text from {pdf_file.name}")
+                text = pdf_parser.extract_text(pdf_file)
+                
+                # Step 2: Parse transactions
+                self.logger.debug(f"Parsing transactions from {pdf_file.name}")
+                transactions = transaction_parser.parse(text)
+                
+                if not transactions:
+                    self.logger.warning(f"No transactions found in {pdf_file.name}")
+                    continue
+                
+                # Step 3: Write to CSV
+                csv_path = self.file_handler.get_output_csv_path(pdf_file, output_dir)
+                self.logger.debug(f"Writing {len(transactions)} transactions to {csv_path.name}")
+                csv_writer.write(transactions, csv_path)
+                
+                self.logger.success(f"Successfully converted {pdf_file.name} ({len(transactions)} transactions)")
+                success_count += 1
+                
+            except Exception as e:
+                self.logger.error(f"Failed to process {pdf_file.name}: {e}")
+                error_count += 1
+                if self.args.verbose:
+                    import traceback
+                    traceback.print_exc()
+        
+        # Final summary
+        self.logger.info(f"\nProcessing complete: {success_count} successful, {error_count} failed")
