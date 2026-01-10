@@ -113,7 +113,7 @@ class CSVWriter:
             'Buchungstag': transaction.buchungsdatum.strftime('%d.%m.%Y'),
             'Wertstellung': transaction.valuta.strftime('%d.%m.%Y'),
             'Umsatzart': umsatzart,
-            'Buchungstext': transaction.beschreibung,
+            'Buchungstext': transaction.verwendungszweck or transaction.beschreibung,
             'Betrag': self._format_betrag(transaction.betrag),
             'Währung': transaction.waehrung,
             'Auftraggeberkonto': '',  # Not available in PDF
